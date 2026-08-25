@@ -9,7 +9,7 @@ export function ProtectedRoute({ role, children }: { role?: string; children: Re
     return <div className="grid min-h-screen place-items-center text-gray-500">Loading...</div>;
   }
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   if (role && user.role !== role) {
     const fallback = user.role === 'ADMIN' ? '/admin' : user.role === 'ORGANIZER' ? '/organizer' : '/';

@@ -91,9 +91,9 @@ export default function ScannerPage() {
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-semibold mb-2">Test Codes:</h3>
             <ul className="text-sm text-gray-600 space-y-1">
-              <li>✅ Valid: VALID-TICKET-123</li>
-              <li>⚠️ Used: USED-TICKET-456</li>
-              <li>❌ Invalid: Any other code</li>
+              <li>[✓] Valid: VALID-TICKET-123</li>
+              <li>[!] Used: USED-TICKET-456</li>
+              <li>[✗] Invalid: Any other code</li>
             </ul>
           </div>
         </div>

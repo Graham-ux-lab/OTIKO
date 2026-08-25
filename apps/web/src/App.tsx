@@ -3,14 +3,9 @@ import { AuthProvider } from './auth';
 import { ProtectedRoute } from './ProtectedRoute';
 import HomePage from './pages/HomePage';
 import ExplorePage from './pages/ExplorePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import MyTicketsPage from './pages/MyTicketsPage';
 import EventDetailsPage from './pages/events/[id]';
 import CheckoutPage from './pages/checkout/[eventId]';
-import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import OrganizerApplyPage from './pages/OrganizerApplyPage';
 import ScannerPage from './pages/scanner/ScannerPage';
 import OrganizerDashboard from './pages/organizer/Dashboard';
@@ -40,15 +35,10 @@ function App() {
         <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/my-tickets" element={<ProtectedRoute><MyTicketsPage /></ProtectedRoute>} />
+        <Route path="/apply-organizer" element={<OrganizerApplyPage />} />
         <Route path="/events/:id" element={<EventDetailsPage />} />
         <Route path="/checkout/:eventId/:ticketId" element={<CheckoutPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/apply-organizer" element={<OrganizerApplyPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         
         <Route path="/organizer" element={<ProtectedRoute role="ORGANIZER"><OrganizerDashboard /></ProtectedRoute>} />

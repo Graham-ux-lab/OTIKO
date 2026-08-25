@@ -53,8 +53,8 @@ export default function AboutPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <Link to="/" className="text-3xl font-extrabold text-purple-700 transition hover:scale-105">OTIKO<span className="ml-1 text-sm font-normal text-gray-500">.ke</span></Link>
           <div className="flex items-center gap-5 text-sm font-medium">
+            <Link to="/" className="relative py-2 transition hover:text-purple-700 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-purple-700 after:transition-all hover:after:w-full">Home</Link>
             <Link to="/explore" className="relative py-2 transition hover:text-purple-700 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-purple-700 after:transition-all hover:after:w-full">Explore</Link>
-            <Link to="/login" className="py-2 transition hover:text-purple-700">Login</Link>
           </div>
         </div>
       </nav>
@@ -64,6 +64,7 @@ export default function AboutPage() {
         <div className="absolute -left-16 top-32 h-48 w-48 animate-float rounded-full bg-blue-400/10 blur-3xl" style={{ animation: 'float 6s ease-in-out infinite', animationDelay: '1s' }} />
         <div className="relative mx-auto max-w-7xl px-4 text-center">
           <div className="animate-fade-in-up opacity-0-start">
+            
           </div>
           <h1 className="mt-6 animate-fade-in-up opacity-0-start delay-200 text-5xl font-extrabold md:text-6xl">
             About <span className="bg-gradient-to-r from-amber-300 to-pink-300 bg-clip-text text-transparent">OTIKO</span>
@@ -73,9 +74,44 @@ export default function AboutPage() {
             OTIKO empowers organizers to reach wider audiences and gives attendees seamless access to the experiences that matter most.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 animate-fade-in opacity-0-start delay-400 text-sm text-purple-200">
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />  events listed</span>
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> tickets sold</span>
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> cities</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> 2,500+ events listed</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> 180K+ tickets sold</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> 32 cities</span>
+          </div>
+          <div className="mt-10 flex justify-center animate-fade-in opacity-0-start delay-500">
+            <svg viewBox="0 0 400 120" fill="none" className="h-24 w-full max-w-md text-white/80">
+              <rect x="10" y="20" width="60" height="80" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="20" y="30" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="20" y="42" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="20" y="54" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <circle cx="40" cy="80" r="12" stroke="currentColor" strokeWidth="2" />
+              <path d="M35 80l4 4 8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+              <rect x="90" y="20" width="60" height="80" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="100" y="30" width="40" height="30" rx="4" fill="currentColor" opacity="0.5" />
+              <rect x="100" y="66" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="100" y="78" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+
+              <rect x="170" y="20" width="60" height="80" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="180" y="30" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="180" y="42" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="180" y="54" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <circle cx="210" cy="75" r="10" stroke="currentColor" strokeWidth="2" />
+              <path d="M206 75l3 3 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+              <rect x="250" y="20" width="60" height="80" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="260" y="30" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="260" y="42" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="260" y="54" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="265" y="68" width="30" height="20" rx="4" stroke="currentColor" strokeWidth="2" />
+
+              <rect x="330" y="20" width="60" height="80" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="340" y="30" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="340" y="42" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <rect x="340" y="54" width="40" height="6" rx="3" fill="currentColor" opacity="0.5" />
+              <circle cx="360" cy="75" r="10" stroke="currentColor" strokeWidth="2" />
+              <path d="M356 75l3 3 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
         </div>
       </header>
@@ -103,18 +139,22 @@ export default function AboutPage() {
             </div>
             <div className={`grid grid-cols-2 gap-4 ${isVisible('mission') ? 'animate-fade-in-up opacity-0-start delay-400' : ''}`}>
               <div className="rounded-3xl bg-gradient-to-br from-purple-600 to-indigo-600 p-6 text-white shadow-xl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 mb-3 opacity-80"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V7Z M9 8v8" /></svg>
                 <p className="text-3xl font-extrabold"></p>
                 <p className="mt-1 text-sm text-purple-100">Events listed</p>
               </div>
               <div className="rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 p-6 text-white shadow-xl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 mb-3 opacity-80"><path d="M5 4v3m14-3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z" /></svg>
                 <p className="text-3xl font-extrabold"></p>
                 <p className="mt-1 text-sm text-amber-100">Tickets sold</p>
               </div>
               <div className="rounded-3xl bg-gradient-to-br from-blue-600 to-teal-600 p-6 text-white shadow-xl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 mb-3 opacity-80"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Zm0-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /></svg>
                 <p className="text-3xl font-extrabold"></p>
                 <p className="mt-1 text-sm text-blue-100">Cities covered</p>
               </div>
               <div className="rounded-3xl bg-gradient-to-br from-pink-600 to-rose-600 p-6 text-white shadow-xl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 mb-3 opacity-80"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-6 5 3 2 3-2 3 2 3-2M6 16l3-2 3 3 3-3 3 2" /></svg>
                 <p className="text-3xl font-extrabold"></p>
                 <p className="mt-1 text-sm text-pink-100">Organizers</p>
               </div>
@@ -137,6 +177,16 @@ export default function AboutPage() {
                 <p className="mt-3 text-center text-gray-600">{value.description}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-12 flex justify-center">
+            <svg viewBox="0 0 600 80" fill="none" className="h-16 w-full max-w-2xl text-purple-200">
+              <rect x="10" y="20" width="80" height="40" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="110" y="20" width="80" height="40" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="210" y="20" width="80" height="40" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="310" y="20" width="80" height="40" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="410" y="20" width="80" height="40" rx="8" stroke="currentColor" strokeWidth="2" />
+              <rect x="510" y="20" width="80" height="40" rx="8" stroke="currentColor" strokeWidth="2" />
+            </svg>
           </div>
         </section>
 
@@ -174,6 +224,16 @@ export default function AboutPage() {
                     <p className="font-semibold">Mon - Fri, 8am - 6pm</p>
                   </div>
                 </div>
+              </div>
+              <div className="mt-8 flex justify-center">
+                <svg viewBox="0 0 400 60" fill="none" className="h-12 w-full max-w-md text-purple-100">
+                  <rect x="10" y="10" width="50" height="40" rx="6" stroke="currentColor" strokeWidth="2" />
+                  <rect x="75" y="10" width="50" height="40" rx="6" stroke="currentColor" strokeWidth="2" />
+                  <rect x="140" y="10" width="50" height="40" rx="6" stroke="currentColor" strokeWidth="2" />
+                  <rect x="205" y="10" width="50" height="40" rx="6" stroke="currentColor" strokeWidth="2" />
+                  <rect x="270" y="10" width="50" height="40" rx="6" stroke="currentColor" strokeWidth="2" />
+                  <rect x="335" y="10" width="50" height="40" rx="6" stroke="currentColor" strokeWidth="2" />
+                </svg>
               </div>
             </div>
           </div>

@@ -52,7 +52,7 @@ export const setUserStatus = (id: string, status: string) =>
 export const getOrganizers = () => request<OrganizerRow[]>('/admin/organizers');
 export const approveOrganizer = (id: string) => request(`/admin/organizers/${id}/approve`, { method: 'PATCH' });
 export const rejectOrganizer = (id: string) => request(`/admin/organizers/${id}/reject`, { method: 'PATCH' });
-export const applyOrganizer = (input: { organizationName: string; description: string; phone: string; website?: string }) =>
+export const applyOrganizer = (input: { organizationName: string; description: string; phone: string; email: string; website?: string }) =>
   request<OrganizerRow>('/organizer/apply', { method: 'POST', body: JSON.stringify(input) });
 
 export const getAdminEvents = () => request<AdminEventRow[]>('/admin/events');

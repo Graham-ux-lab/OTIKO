@@ -16,6 +16,7 @@ import {
 import { OrganizerLayout } from '../../components/OrganizerLayout';
 import { getMyEvents, getOrganizerOrders } from '../../api';
 import type { OrganizerEventRow, OrderRow } from '../../types';
+import { Icon } from '../../components/Icon';
 
 const PLATFORM_FEE = 0.1;
 const PURPLE = '#7c3aed';
@@ -144,7 +145,7 @@ export default function OrganizerDashboard() {
               <div key={e.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
                 <div>
                   <p className="font-semibold">{e.title}</p>
-                  <p className="text-sm text-gray-500">📅 {new Intl.DateTimeFormat('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(e.startDate))}</p>
+                  <p className="text-sm text-gray-500"><Icon name="calendar" className="h-4 w-4 inline mr-1" />{new Intl.DateTimeFormat('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(e.startDate))}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">{sold} / {cap} tickets sold</p>

@@ -18,6 +18,7 @@ import {
 import { AdminLayout } from '../../components/AdminLayout';
 import { getUsers, getAdminEvents, getOrganizers, getAdminOrders } from '../../api';
 import type { UserRow, AdminEventRow, OrganizerRow, OrderRow } from '../../types';
+import { Icon } from '../../components/Icon';
 
 const PLATFORM_FEE = 0.1;
 const PURPLE = '#7c3aed';
@@ -85,11 +86,11 @@ export default function AdminDashboard() {
   ];
 
   const stats = [
-    { label: 'Total Users', value: users.length.toString(), icon: '👥' },
-    { label: 'Total Organizers', value: organizers.length.toString(), icon: '🏢' },
-    { label: 'Total Events', value: events.length.toString(), icon: '📅' },
-    { label: 'Revenue (paid)', value: `KSh ${totalRevenue.toLocaleString()}`, icon: '💰' },
-    { label: 'Pending Approvals', value: pendingOrganizers.toString(), icon: '⏳' },
+    { label: 'Total Users', value: users.length.toString(), icon: 'family' as const },
+    { label: 'Total Organizers', value: organizers.length.toString(), icon: 'laptop' as const },
+    { label: 'Total Events', value: events.length.toString(), icon: 'calendar' as const },
+    { label: 'Revenue (paid)', value: `KSh ${totalRevenue.toLocaleString()}`, icon: 'chart' as const },
+    { label: 'Pending Approvals', value: pendingOrganizers.toString(), icon: 'tools' as const },
   ];
 
   return (
@@ -105,7 +106,7 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-500">{s.label}</p>
                 <p className="text-2xl font-bold mt-1">{s.value}</p>
               </div>
-              <span className="text-3xl">{s.icon}</span>
+              <Icon name={s.icon} className="h-8 w-8" />
             </div>
           </div>
         ))}
