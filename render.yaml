@@ -1,0 +1,15 @@
+﻿services:
+  - type: web
+    name: otiko-api
+    env: node
+    region: frankfurt
+    plan: free
+    branch: master
+    rootDir: apps/api
+    buildCommand: npm install --include=dev && npx prisma generate --schema=./prisma/schema.prisma && npm run build
+    startCommand: node dist/main.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
