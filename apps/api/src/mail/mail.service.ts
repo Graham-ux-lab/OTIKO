@@ -1,49 +1,38 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter;
+  private resend: Resend | null = null;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    this.transporter.verify((error) => {
-      if (error) {
-        this.logger.error('❌ SMTP connection failed: ' + error.message);
-      } else {
-        this.logger.log('✅ SMTP server ready');
-      }
-    });
+    const apiKey = process.env.RESEND_API_KEY;
+    if (apiKey) {
+      this.resend = new Resend(apiKey);
+      this.logger.log('✅ Resend email client ready');
+    } else {
+      this.logger.warn('⚠️  RESEND_API_KEY not set — emails will be skipped');
+    }
   }
 
-  async sendMail(options: { to: string; subject: string; html: string }): Promise<boolean> {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.SMTP_HOST) {
-      this.logger.warn('⚠️  SMTP not configured — email skipped');
-      return false;
+  async sendMail(options: { to: string; subject: string; html: string }): Promise<void> {
+    if (!this.resend) {
+      this.logger.warn('⚠️  Email skipped (no Resend client)');
+      return;
     }
 
     try {
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'OTIKO <noreply@otiko.com>',
+      const from = process.env.EMAIL_FROM || 'OTIKO <onboarding@resend.dev>';
+      await this.resend.emails.send({
+        from,
         to: options.to,
         subject: options.subject,
         html: options.html,
       });
-      this.logger.log('Email sent to ' + options.to);
-      return true;
-    } catch (error) {
+      this.logger.log('✅ Email sent to ' + options.to);
+    } catch (error: any) {
       this.logger.error('❌ Failed to send email to ' + options.to + ': ' + error.message);
-      return false;
     }
   }
 
@@ -65,18 +54,12 @@ export class MailService {
       '<p style="color: #2563eb; font-size: 13px; word-break: break-all;">' + verifyUrl + '</p>' +
       '<hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">' +
       '<p style="color: #9ca3af; font-size: 12px; text-align: center;">Once verified, your organizer account will be reviewed by our team.</p>' +
-      '</div>' +
-      '<p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;">© 2026 OTIKO. All rights reserved.</p>' +
-      '</div>';
+      '</div></div>';
 
-    await this.sendMail({
-      to: email,
-      subject: 'Verify your OTIKO organizer account',
-      html,
-    });
+    await this.sendMail({ to: email, subject: 'Verify your OTIKO organizer account', html });
   }
 
-  async sendOrganizerApproved(email: string, name: string, organizationName: string): Promise<boolean> {
+  async sendOrganizerApproved(email: string, name: string, organizationName: string) {
     const dashboardUrl = (process.env.FRONTEND_URL || 'http://localhost:5173') + '/login';
 
     const html = '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb;">' +
@@ -86,21 +69,16 @@ export class MailService {
       '</div>' +
       '<div style="background: white; padding: 40px 30px; border-radius: 0 0 12px 12px;">' +
       '<h2 style="color: #111827;">Congratulations, ' + name + '!</h2>' +
-      '<p style="color: #374151; line-height: 1.6;">Your organizer account for <strong>' + organizationName + '</strong> has been approved. You can now log in and start creating events on OTIKO.</p>' +
+      '<p style="color: #374151; line-height: 1.6;">Your organizer account for <strong>' + organizationName + '</strong> has been approved. You can now log in and start creating events.</p>' +
       '<div style="text-align: center; margin: 30px 0;">' +
       '<a href="' + dashboardUrl + '" style="background: #059669; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Go to Dashboard</a>' +
       '</div>' +
-      '<p style="color: #6b7280; font-size: 14px;">Get started by creating your first event.</p>' +
       '</div></div>';
 
-    return this.sendMail({
-      to: email,
-      subject: '🎉 Your OTIKO organizer account has been approved',
-      html,
-    });
+    await this.sendMail({ to: email, subject: '🎉 Your OTIKO organizer account has been approved', html });
   }
 
-  async sendOrganizerRejected(email: string, name: string, reason: string): Promise<boolean> {
+  async sendOrganizerRejected(email: string, name: string, reason: string) {
     const html = '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb;">' +
       '<div style="background: #dc2626; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">' +
       '<h1 style="color: white; margin: 0; font-size: 32px;">OTIKO</h1>' +
@@ -112,14 +90,9 @@ export class MailService {
       '<p style="color: #991b1b; margin: 0; font-weight: bold;">Reason:</p>' +
       '<p style="color: #7f1d1d; margin: 8px 0 0;">' + reason + '</p>' +
       '</div>' +
-      '<p style="color: #6b7280; font-size: 14px;">If you believe this was a mistake, contact support@otiko.com.</p>' +
       '</div></div>';
 
-    return this.sendMail({
-      to: email,
-      subject: 'OTIKO organizer application update',
-      html,
-    });
+    await this.sendMail({ to: email, subject: 'OTIKO organizer application update', html });
   }
 
   async sendTicketEmail(options: {
@@ -155,17 +128,8 @@ export class MailService {
       '<img src="' + options.qrCodeDataUrl + '" alt="QR Code" style="width: 200px; height: 200px; display: block; margin: 0 auto;" />' +
       '<p style="color: #9ca3af; margin: 16px 0 0; font-size: 12px;">Show this QR code at the event entrance.</p>' +
       '</div>' +
-      '<div style="text-align: center; margin: 24px 0;">' +
-      '<a href="' + (process.env.FRONTEND_URL || 'http://localhost:5173') + '/my-tickets" style="background: #2563eb; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">View My Tickets</a>' +
-      '</div>' +
-      '</div>' +
-      '<p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;">© 2026 OTIKO. All rights reserved.</p>' +
-      '</div>';
+      '</div></div>';
 
-    await this.sendMail({
-      to: options.to,
-      subject: '🎟️ Your ticket for ' + options.eventTitle,
-      html,
-    });
+    await this.sendMail({ to: options.to, subject: '🎟️ Your ticket for ' + options.eventTitle, html });
   }
 }
