@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { getAdminOrders } from '../../api';
-import type { OrderRow } from '../../types';
+import type { AdminOrderRow } from '../../types';
 
 export default function AdminPayments() {
-  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [orders, setOrders] = useState<AdminOrderRow[]>([]);
   useEffect(() => {
-    getAdminOrders().then(setOrders).catch(() => {});
+    const refresh = () => getAdminOrders().then(setOrders).catch(() => {});
+    void refresh();
+    const timer = window.setInterval(refresh, 15000);
+    return () => window.clearInterval(timer);
   }, []);
   const paid = orders.filter((o) => o.status === 'PAID');
   const total = paid.reduce((s, o) => s + o.totalAmount, 0);

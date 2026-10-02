@@ -240,7 +240,7 @@ export default function AboutPage() {
         </section>
       </main>
 
-      <footer className="mt-16 bg-gray-900 py-12 text-white">
+      <footer className="site-footer mt-16 bg-gray-900 py-12 text-white">
         <div className="mx-auto max-w-7xl px-4 text-center">
           <strong className="text-3xl text-purple-400">OTIKO</strong>
           <p className="mt-3 max-w-xs mx-auto text-gray-400">Discover, book, and experience the best events in Kenya.</p>

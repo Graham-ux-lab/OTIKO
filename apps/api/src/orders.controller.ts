@@ -1,43 +1,58 @@
 import { Controller, Get, NotFoundException, UseGuards } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { RolesGuard } from './roles.guard';
-import { Roles } from './roles.decorator';
-import { CurrentUser } from './current-user.decorator';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { Roles } from './auth/decorators/roles.decorator';
+import { CurrentUser } from './auth/decorators/current-user.decorator';
 
-const orderInclude = {
-  event: { select: { id: true, title: true, organizerId: true } },
-  user: { select: { id: true, name: true, email: true } },
-  items: { select: { id: true, quantity: true, unitPrice: true, totalPrice: true } },
-} as const;
-
-@Controller('orders')
+@Controller()
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
   constructor(private readonly prisma: PrismaService) {}
 
-  @Get('admin')
+  @Get('admin/orders')
   @Roles('ADMIN')
-  adminIndex() {
-    return this.prisma.order.findMany({ orderBy: { createdAt: 'desc' }, include: orderInclude });
-  }
-
-  @Get('organizer')
-  @Roles('ORGANIZER')
-  async organizerIndex(@CurrentUser() user: { id: string }) {
-    const profile = await this.prisma.organizerProfile.findUnique({ where: { userId: user.id } });
-    if (!profile) throw new NotFoundException('Organizer profile not found');
-    const events = await this.prisma.event.findMany({ where: { organizerId: profile.id }, select: { id: true } });
-    const eventIds = events.map((event) => event.id);
-    return this.prisma.order.findMany({ where: { eventId: { in: eventIds } }, orderBy: { createdAt: 'desc' }, include: orderInclude });
-  }
-
-  @Get('my')
-  async myOrders(@CurrentUser() user: { id: string }) {
-    return this.prisma.order.findMany({
-      where: { userId: user.id },
+  async adminOrders() {
+    const orders = await this.prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
-      include: orderInclude,
+      include: {
+        event: { select: { id: true, title: true } },
+        items: { select: { id: true, ticketTypeId: true, quantity: true, unitPrice: true, totalPrice: true } },
+      },
     });
+    return orders.map(({ customerName, customerEmail, ...order }) => ({
+      ...order,
+      user: { name: customerName, email: customerEmail },
+    }));
+  }
+
+  @Get('orders/organizer')
+  @Roles('ORGANIZER')
+  async organizerOrders(@CurrentUser() user: { id: string }) {
+    const profile = await this.prisma.organizerProfile.findUnique({ where: { userId: user.id }, select: { id: true } });
+    if (!profile) throw new NotFoundException('Organizer profile not found');
+    const orders = await this.prisma.order.findMany({
+      where: { event: { organizerId: profile.id } },
+      include: { event: { select: { id: true, title: true } }, items: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return orders.map(({ customerName, customerEmail, customerPhone, ...order }) => ({
+      ...order,
+      user: { name: customerName, email: customerEmail },
+    }));
+  }
+
+  @Get('orders/my')
+  @Roles('CUSTOMER')
+  async myOrders(@CurrentUser() user: { email: string }) {
+    const orders = await this.prisma.order.findMany({
+      where: { customerEmail: user.email },
+      include: { event: { select: { id: true, title: true } }, items: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return orders.map(({ customerName, customerEmail, customerPhone, ...order }) => ({
+      ...order,
+      user: { name: customerName, email: customerEmail },
+    }));
   }
 }

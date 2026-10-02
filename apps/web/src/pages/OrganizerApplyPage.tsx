@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
-import { applyOrganizer } from '../api';
 
 type Benefit = {
   icon: 'ticket' | 'calendar' | 'shield';
@@ -23,6 +22,7 @@ const requirements = [
 ];
 
 export default function OrganizerApplyPage() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ organizationName: '', email: '', description: '', phone: '', website: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -44,18 +44,12 @@ export default function OrganizerApplyPage() {
 
   const isVisible = (id: string) => visibleSections.has(id);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setMessage('');
-    try {
-      await applyOrganizer({ organizationName: formData.organizationName, description: formData.description, phone: formData.phone, email: formData.email, website: formData.website || undefined });
-      setSuccess(true);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Failed to submit application. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
+    setMessage('Continue with the organizer signup form to finish creating your account.');
+    setSuccess(false);
+    navigate('/organizer-signup');
   };
 
   if (success) {
@@ -211,7 +205,7 @@ export default function OrganizerApplyPage() {
         </div>
       </main>
 
-      <footer className="mt-16 bg-gray-900 py-12 text-white">
+      <footer className="site-footer mt-16 bg-gray-900 py-12 text-white">
         <div className="mx-auto max-w-7xl px-4 text-center">
           <strong className="text-3xl text-purple-400">OTIKO</strong>
           <p className="mt-3 max-w-xs mx-auto text-gray-400">Discover, book, and experience the best events in Kenya.</p>

@@ -1,6 +1,6 @@
-import type { CreateEventInput, OrderRow, AdminEventRow, OrganizerEventRow, OrganizerRow, SessionUser, UserRow, ApiEvent, ApiCategory, ApiOrder } from './types';
+import type { CreateEventInput, AdminOrderRow, OrganizerOrderRow, AdminEventRow, OrganizerEventRow, OrganizerRow, SessionUser, UserRow, ApiEvent, ApiCategory, ApiOrder } from './types';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+const apiBaseUrl = `${import.meta.env.VITE_API_URL ?? 'http://localhost:4000'}/api`;
 
 type Session = { accessToken: string; user: SessionUser };
 
@@ -49,28 +49,42 @@ export const getUsers = () => request<UserRow[]>('/admin/users');
 export const setUserStatus = (id: string, status: string) =>
   request<UserRow>(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
 
-export const getOrganizers = () => request<OrganizerRow[]>('/admin/organizers');
+export const getOrganizers = async () => {
+  const users = await request<{
+    id: string; name: string; email: string; phone: string; status: string; createdAt: string;
+    organizerProfile?: { id: string; organizationName: string; description: string | null; status: string; approvedAt: string | null; createdAt: string } | null;
+  }[]>('/admin/organizers');
+  return users.flatMap((user) => user.organizerProfile ? [{
+    ...user.organizerProfile,
+    user: { id: user.id, name: user.name, email: user.email, phone: user.phone, status: user.status },
+  }] : []) as OrganizerRow[];
+};
 export const approveOrganizer = (id: string) => request(`/admin/organizers/${id}/approve`, { method: 'PATCH' });
-export const rejectOrganizer = (id: string) => request(`/admin/organizers/${id}/reject`, { method: 'PATCH' });
-export const applyOrganizer = (input: { organizationName: string; description: string; phone: string; email: string; website?: string }) =>
-  request<OrganizerRow>('/organizer/apply', { method: 'POST', body: JSON.stringify(input) });
-
+export const rejectOrganizer = (id: string, reason: string) => request(`/admin/organizers/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) });
 export const getAdminEvents = () => request<AdminEventRow[]>('/admin/events');
 export const setEventStatus = (id: string, status: string) =>
   request(`/admin/events/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
 export const deleteEvent = (id: string) => request(`/admin/events/${id}`, { method: 'DELETE' });
 
-export const getMyEvents = () => request<OrganizerEventRow[]>('/organizer/events');
-export const createEvent = (input: CreateEventInput) =>
-  request<OrganizerEventRow>('/organizer/events', { method: 'POST', body: JSON.stringify(input) });
+export const getMyEvents = () => request<OrganizerEventRow[]>('/events/organizer/me');
+export const createEvent = (input: CreateEventInput) => {
+  const ticketTypes = (input.ticketTypes ?? []).map((ticket) => ({
+    ...ticket,
+    salesStart: input.startDate,
+    salesEnd: input.endDate,
+  }));
+  return request<OrganizerEventRow>('/events', { method: 'POST', body: JSON.stringify({ ...input, ticketTypes }) });
+};
 export const organizerSetEventStatus = (id: string, status: string) =>
-  request(`/organizer/events/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
-export const organizerDeleteEvent = (id: string) => request(`/organizer/events/${id}`, { method: 'DELETE' });
+  status === 'PUBLISHED'
+    ? request(`/events/${id}/publish`, { method: 'POST' })
+    : request(`/events/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+export const organizerDeleteEvent = (id: string) => request(`/events/${id}`, { method: 'DELETE' });
 
 export const getCategories = () => request<ApiCategory[]>('/categories');
 export const getEvents = () => request<ApiEvent[]>('/events');
 export const getEvent = (id: string) => request<ApiEvent>(`/events/${id}`);
 
-export const getAdminOrders = () => request<OrderRow[]>('/orders/admin');
-export const getOrganizerOrders = () => request<OrderRow[]>('/orders/organizer');
+export const getAdminOrders = () => request<AdminOrderRow[]>('/admin/orders');
+export const getOrganizerOrders = () => request<OrganizerOrderRow[]>('/orders/organizer');
 export const getMyOrders = () => request<ApiOrder[]>('/orders/my');

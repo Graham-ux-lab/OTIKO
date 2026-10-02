@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { OrganizerLayout } from '../../components/OrganizerLayout';
 import { getMyEvents, getOrganizerOrders } from '../../api';
-import type { OrganizerEventRow, OrderRow } from '../../types';
+import type { OrganizerEventRow, OrganizerOrderRow } from '../../types';
 
 const PLATFORM_FEE = 0.1;
 const PURPLE = '#7c3aed';
@@ -40,21 +40,21 @@ function lastNDates(n: number): string[] {
 
 export default function OrganizerAnalytics() {
   const [events, setEvents] = useState<OrganizerEventRow[]>([]);
-  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [orders, setOrders] = useState<OrganizerOrderRow[]>([]);
   useEffect(() => {
-    Promise.all([getMyEvents(), getOrganizerOrders()])
-      .then(([e, o]) => {
-        setEvents(e);
-        setOrders(o);
-      })
+    const refresh = () => Promise.all([getMyEvents(), getOrganizerOrders()])
+      .then(([e, o]) => { setEvents(e); setOrders(o); })
       .catch(() => {});
+    void refresh();
+    const timer = window.setInterval(refresh, 15000);
+    return () => window.clearInterval(timer);
   }, []);
 
   const paid = orders.filter((o) => o.status === 'PAID');
   const revenue = paid.reduce((s, o) => s + o.totalAmount, 0);
   const fee = Math.round(revenue * PLATFORM_FEE);
   const payout = revenue - fee;
-  const ticketsSold = events.reduce((s, e) => s + e.ticketTypes.reduce((t, tt) => t + tt.soldQuantity, 0), 0);
+  const ticketsSold = paid.reduce((sum, order) => sum + order.items.reduce((items, item) => items + item.quantity, 0), 0);
   const ticketsCap = events.reduce((s, e) => s + e.ticketTypes.reduce((t, tt) => t + tt.quantity, 0), 0);
   const conversion = ticketsCap ? Math.round((ticketsSold / ticketsCap) * 100) : 0;
 

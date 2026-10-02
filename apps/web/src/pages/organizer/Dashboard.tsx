@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import { OrganizerLayout } from '../../components/OrganizerLayout';
 import { getMyEvents, getOrganizerOrders } from '../../api';
-import type { OrganizerEventRow, OrderRow } from '../../types';
+import type { OrganizerEventRow, OrganizerOrderRow } from '../../types';
 import { Icon } from '../../components/Icon';
 
 const PLATFORM_FEE = 0.1;
@@ -39,23 +39,27 @@ function lastNDates(n: number): string[] {
 
 export default function OrganizerDashboard() {
   const [events, setEvents] = useState<OrganizerEventRow[]>([]);
-  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [orders, setOrders] = useState<OrganizerOrderRow[]>([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([getMyEvents(), getOrganizerOrders()])
-      .then(([e, o]) => {
-        setEvents(e);
-        setOrders(o);
-      })
+    const refresh = () => Promise.all([getMyEvents(), getOrganizerOrders()])
+      .then(([e, o]) => { setEvents(e); setOrders(o); })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed'));
+    void refresh();
+    const timer = window.setInterval(refresh, 15000);
+    return () => window.clearInterval(timer);
   }, []);
 
   const paid = orders.filter((o) => o.status === 'PAID');
   const revenue = paid.reduce((s, o) => s + o.totalAmount, 0);
   const fee = Math.round(revenue * PLATFORM_FEE);
   const payout = revenue - fee;
-  const ticketsSold = events.reduce((s, e) => s + e.ticketTypes.reduce((t, tt) => t + tt.soldQuantity, 0), 0);
+  const ticketsSold = paid.reduce((sum, order) => sum + order.items.reduce((items, item) => items + item.quantity, 0), 0);
+  const paidTicketsByEvent = paid.reduce<Record<string, number>>((totals, order) => {
+    totals[order.event.id] = (totals[order.event.id] ?? 0) + order.items.reduce((sum, item) => sum + item.quantity, 0);
+    return totals;
+  }, {});
 
   const revenueByDay: Record<string, number> = {};
   paid.forEach((o) => {
@@ -138,7 +142,7 @@ export default function OrganizerDashboard() {
         <div className="p-6">
           {events.length === 0 && <p className="text-gray-400">No events yet.</p>}
           {events.map((e) => {
-            const sold = e.ticketTypes.reduce((t, tt) => t + tt.soldQuantity, 0);
+            const sold = paidTicketsByEvent[e.id] ?? 0;
             const cap = e.ticketTypes.reduce((t, tt) => t + tt.quantity, 0);
             const pct = cap ? Math.round((sold / cap) * 100) : 0;
             return (

@@ -57,7 +57,7 @@ export default function CreateEvent() {
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block text-sm font-semibold text-gray-700">Start date
             <input required type="datetime-local" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} className={field + ' w-full py-3'} />
           </label>
@@ -65,7 +65,7 @@ export default function CreateEvent() {
             <input required type="datetime-local" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} className={field + ' w-full py-3'} />
           </label>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block text-sm font-semibold text-gray-700">Venue
             <input required value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} className={field + ' w-full py-3'} placeholder="Venue" />
           </label>
@@ -75,7 +75,7 @@ export default function CreateEvent() {
         </div>
         <fieldset className="border rounded-lg p-4">
           <legend className="text-sm font-semibold text-gray-700 px-2">Ticket type</legend>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="block text-sm font-semibold text-gray-700">Name
               <input value={ticket.name} onChange={(e) => setTicket({ ...ticket, name: e.target.value })} className={field + ' w-full py-3'} />
             </label>

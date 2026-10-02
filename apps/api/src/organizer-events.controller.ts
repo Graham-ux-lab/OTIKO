@@ -71,6 +71,7 @@ export class OrganizerEventsController {
 
   @Patch(':id/status')
   async setStatus(@CurrentUser() user: { id: string }, @Param('id') id: string, @Body() dto: EventStatusDto) {
+    if (dto.status === 'PUBLISHED') throw new BadRequestException('Use the publish action to publish an event');
     const organizerId = await this.organizerId(user.id);
     return this.prisma.event.update({ where: { id, organizerId }, data: { status: dto.status } });
   }
@@ -78,6 +79,19 @@ export class OrganizerEventsController {
   @Delete(':id')
   async remove(@CurrentUser() user: { id: string }, @Param('id') id: string) {
     const organizerId = await this.organizerId(user.id);
-    return this.prisma.event.delete({ where: { id, organizerId } });
+    const event = await this.prisma.event.findFirst({
+      where: { id, organizerId },
+      select: { id: true, _count: { select: { orders: true, tickets: true, checkIns: true } } },
+    });
+    if (!event) throw new NotFoundException('Event not found');
+
+    if (event._count.orders || event._count.tickets || event._count.checkIns) {
+      return this.prisma.event.update({ where: { id }, data: { status: 'CANCELLED' } });
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.ticketType.deleteMany({ where: { eventId: id } });
+      return tx.event.delete({ where: { id } });
+    });
   }
 }

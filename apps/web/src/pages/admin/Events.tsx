@@ -52,16 +52,16 @@ export default function AdminEvents() {
                 <td className="px-6 py-4">{e.category.name}</td>
                 <td className="px-6 py-4">{fmt(e.startDate)}</td>
                 <td className="px-6 py-4">
-                  <span className={`rounded px-2 py-1 text-xs font-semibold ${e.status === 'PUBLISHED' ? 'bg-green-100 text-green-600' : e.status === 'SUSPENDED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>{e.status}</span>
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${e.status === 'PUBLISHED' ? 'bg-green-100 text-green-600' : e.status === 'SUSPENDED' || e.status === 'CANCELLED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>{e.status}</span>
                 </td>
                 <td className="px-6 py-4 space-x-2 whitespace-nowrap">
                   {e.status !== 'PUBLISHED' && (
                     <button disabled={busy === e.id} onClick={() => act(e.id, () => setEventStatus(e.id, 'PUBLISHED'))} className="text-green-600 hover:text-green-800 disabled:opacity-50">Publish</button>
                   )}
-                  {e.status !== 'SUSPENDED' && (
+                  {e.status !== 'SUSPENDED' && e.status !== 'CANCELLED' && (
                     <button disabled={busy === e.id} onClick={() => act(e.id, () => setEventStatus(e.id, 'SUSPENDED'))} className="text-red-600 hover:text-red-800 disabled:opacity-50">Suspend</button>
                   )}
-                  <button disabled={busy === e.id} onClick={() => { if (confirm('Delete this event?')) act(e.id, () => deleteEvent(e.id)); }} className="text-gray-600 hover:text-gray-800 disabled:opacity-50">Delete</button>
+                  <button disabled={busy === e.id} onClick={() => { if (confirm('Delete this event? Events with orders or attendee records will be cancelled and removed from listings to preserve their records.')) act(e.id, () => deleteEvent(e.id)); }} className="text-red-600 hover:text-red-800 disabled:opacity-50">Delete</button>
                 </td>
               </tr>
             ))}

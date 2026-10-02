@@ -1,32 +1,28 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { HealthController } from './health.controller';
-import { EventsController } from './events.controller';
-import { CategoriesController } from './categories.controller';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma.service';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { RolesGuard } from './roles.guard';
-import { UsersController } from './users.controller';
-import { OrganizersController } from './organizers.controller';
-import { AdminEventsController } from './admin-events.controller';
-import { OrganizerEventsController } from './organizer-events.controller';
+import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './events/events.module';
+import { MailModule } from './mail/mail.module';
+import { AdminModule } from './admin/admin.module';
+import { CategoriesController } from './categories.controller';
+import { PaymentsController } from './payments.controller';
 import { OrdersController } from './orders.controller';
+import { HealthController } from './health.controller';
 
 @Module({
-  imports: [JwtModule.register({})],
-  controllers: [
-    HealthController,
-    EventsController,
-    CategoriesController,
-    AuthController,
-    UsersController,
-    OrganizersController,
-    AdminEventsController,
-    OrganizerEventsController,
-    OrdersController,
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env'],
+    }),
+    MailModule,
+    AuthModule,
+    EventsModule,
+    AdminModule,
   ],
-  providers: [PrismaService, AuthService, JwtAuthGuard, RolesGuard],
+  controllers: [CategoriesController, PaymentsController, OrdersController, HealthController],
+  providers: [PrismaService],
+  exports: [PrismaService],
 })
 export class AppModule {}

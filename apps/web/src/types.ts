@@ -125,6 +125,28 @@ export interface OrderRow {
   items: { id: string; quantity: number; unitPrice: number; totalPrice: number }[];
 }
 
+export interface AdminOrderRow {
+  id: string;
+  orderNumber: string;
+  status: string;
+  totalAmount: number;
+  createdAt: string;
+  event: { id: string; title: string };
+  user: { name: string; email: string };
+  items: { id: string; ticketTypeId: string; quantity: number; unitPrice: number; totalPrice: number }[];
+}
+
+export interface OrganizerOrderRow {
+  id: string;
+  orderNumber: string;
+  status: string;
+  totalAmount: number;
+  createdAt: string;
+  event: { id: string; title: string };
+  user: { name: string; email: string };
+  items: { id: string; ticketTypeId: string; quantity: number; unitPrice: number; totalPrice: number }[];
+}
+
 export interface CreateEventInput {
   title: string;
   description?: string;

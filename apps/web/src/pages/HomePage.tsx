@@ -1,36 +1,262 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { events } from '../data/events';
+import { api, type Event, type Category } from '../lib/api';
 import { Icon } from '../components/Icon';
 
-const categories = [
-  { name: 'Concerts', icon: 'music' as const, count: 45, image: '/images/events/concert1.jpg' },
-  { name: 'Comedy', icon: 'comedy' as const, count: 23, image: '/images/events/comedy1.jpg' },
-  { name: 'Sports', icon: 'sport' as const, count: 31, image: '/images/events/marathon1.jpg' },
-  { name: 'Parties', icon: 'party' as const, count: 18, image: '/images/events/party1.jpg' },
-  { name: 'Theatre', icon: 'theatre' as const, count: 12, image: '/images/events/fashion1.jpg' },
-  { name: 'Conferences', icon: 'laptop' as const, count: 27, image: '/images/events/tech1.jpg' },
-];
-
-function EventCard({ event }: { event: typeof events[number] }) {
-  return <Link to={`/events/${event.id}`} className="group overflow-hidden rounded-3xl bg-white shadow-[0_12px_30px_rgba(45,26,78,.09)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_20px_45px_rgba(45,26,78,.18)]">
-    <div className="relative h-56 overflow-hidden"><img src={event.image} alt={event.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#1b0d37]/50 via-transparent to-transparent" /><span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-purple-700">{event.category}</span><span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white"><Icon name="calendar" className="h-4 w-4" />{event.date}</span></div>
-    <div className="p-6"><h3 className="text-xl font-extrabold tracking-tight text-gray-900 transition group-hover:text-purple-700">{event.title}</h3><p className="mt-2 flex items-center gap-2 text-sm text-gray-500"><Icon name="pin" className="h-4 w-4 text-amber-600" />{event.location}</p><div className="mt-5 flex items-center justify-between"><span className="font-bold text-purple-700">From KSh {event.price.toLocaleString()}</span><span className="grid h-9 w-9 place-items-center rounded-full bg-purple-50 text-purple-700 transition group-hover:bg-purple-700 group-hover:text-white"><Icon name="arrow" className="h-4 w-4" /></span></div></div>
-  </Link>;
-}
-
 export default function HomePage() {
-  const featuredEvents = events.slice(0, 3);
-  const trendingEvents = events.slice(3, 6);
-  const [darkMode, setDarkMode] = useState(false);
-  return <div className={`min-h-screen overflow-x-hidden ${darkMode ? 'bg-[#100a21] text-white' : 'bg-[#faf9fc] text-gray-900'}`}>
-    <style>{`@keyframes home-rise {from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}} @keyframes home-float {0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}} .home-rise{animation:home-rise .7s ease-out both}.home-float{animation:home-float 6s ease-in-out infinite}.home-d1{animation-delay:.12s}.home-d2{animation-delay:.24s}.home-d3{animation-delay:.36s}`}</style>
-    <nav className={`sticky top-0 z-50 border-b backdrop-blur ${darkMode ? 'border-white/10 bg-[#100a21]/90' : 'border-purple-100 bg-white/90'}`}><div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6"><Link to="/" className="text-3xl font-black tracking-[-.08em] text-purple-700">OTIKO<span className="text-amber-500">.</span></Link><div className={`hidden items-center gap-7 text-sm font-semibold md:flex ${darkMode ? 'text-purple-100' : 'text-gray-600'}`}><Link to="/explore" className="transition hover:text-amber-400">Explore</Link><Link to="/about" className="transition hover:text-amber-400">About</Link></div><div className="flex items-center gap-3"><button onClick={() => setDarkMode((value) => !value)} className={`rounded-lg px-3 py-2 text-xs font-bold ring-1 transition ${darkMode ? 'bg-white/10 text-white ring-white/20' : 'text-purple-700 ring-purple-200'}`}>{darkMode ? 'Light mode' : 'Dark mode'}</button><Link to="/apply-organizer" className="rounded-xl bg-purple-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-purple-700/20 transition hover:bg-purple-800">For organisers</Link></div></div></nav>
-    <header className="relative isolate overflow-hidden bg-gradient-to-br from-purple-800 via-purple-700 to-blue-700 text-white"><div className="home-float absolute -right-20 top-8 h-72 w-72 rounded-full bg-pink-400/20 blur-3xl" /><div className="home-float absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl" style={{ animationDelay: '1.3s' }} /><div className="relative mx-auto grid max-w-7xl gap-10 px-4 pb-24 pt-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:pb-28"><div><h1 className="home-rise home-d1 mt-6 max-w-xl text-5xl font-black leading-[.98] tracking-[-.055em] sm:text-6xl">The pulse of events.<br /><span className="text-amber-300">Feel the beat.</span></h1><p className="home-rise home-d2 mt-6 max-w-lg text-lg leading-7 text-purple-100">Discover the concerts, gatherings and experiences that turn ordinary weekends into unforgettable stories.</p><div className="home-rise home-d3 mt-8 flex flex-wrap gap-3"><Link to="/explore" className="rounded-xl bg-amber-500 px-6 py-3.5 font-bold text-white shadow-lg transition hover:bg-amber-600">Explore events</Link><Link to="/apply-organizer" className="rounded-xl border border-white/30 px-6 py-3.5 font-bold text-white transition hover:bg-white/10">Become an organiser</Link></div></div><div className="home-rise home-d2 relative min-h-[360px] overflow-hidden rounded-3xl shadow-2xl"><img src={featuredEvents[0].image} alt={featuredEvents[0].title} className="absolute inset-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-purple-950/90 via-purple-900/25 to-transparent" /><div className="absolute inset-x-5 bottom-5 rounded-2xl bg-white/95 p-4 backdrop-blur"><p className="text-sm font-bold text-gray-700">Find your next event</p><div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]"><label className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-3 text-gray-400"><Icon name="search" className="h-5 w-5" /><input placeholder="Search events" className="w-full bg-transparent text-sm text-gray-900 outline-none" /></label><Link to="/explore" className="grid place-items-center rounded-xl bg-purple-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-purple-800">Search</Link></div></div></div></div></header>
-    <main><section className="mx-auto max-w-7xl px-4 py-16 sm:px-6"><div className="flex items-end justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-[.15em] text-amber-600">Make a plan</p><h2 className="mt-2 text-3xl font-black tracking-tight">Browse by category</h2></div><Link to="/explore" className="text-sm font-bold text-purple-700">See all events</Link></div><div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">{categories.map((category) => <Link key={category.name} to={`/explore?category=${encodeURIComponent(category.name)}`} className="group relative h-44 overflow-hidden rounded-2xl bg-purple-900"><img src={category.image} alt={category.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-purple-950/80 via-purple-900/10 to-transparent" /><div className="absolute bottom-4 left-4 text-white"><Icon name={category.icon} className="mb-2 h-5 w-5" /><p className="font-bold">{category.name}</p><p className="text-xs text-purple-100">{category.count} events</p></div></Link>)}</div></section>
-      <section className="bg-white"><div className="mx-auto max-w-7xl px-4 py-16 sm:px-6"><div className="flex items-end justify-between"><div><p className="text-sm font-bold uppercase tracking-[.15em] text-purple-700">Handpicked for you</p><h2 className="mt-2 text-3xl font-black tracking-tight">Featured events</h2></div><Link to="/explore" className="hidden text-sm font-bold text-purple-700 sm:block">Explore all</Link></div><div className="mt-8 grid gap-6 md:grid-cols-3">{featuredEvents.map((event) => <EventCard key={event.id} event={event} />)}</div></div></section>
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6"><div className="rounded-3xl bg-gradient-to-r from-purple-800 via-indigo-700 to-blue-700 p-8 text-white shadow-xl md:flex md:items-center md:justify-between md:p-12"><div><p className="text-sm font-bold uppercase tracking-[.15em] text-amber-300">For event creators</p><h2 className="mt-3 max-w-xl text-3xl font-black tracking-tight sm:text-4xl">Your next great event starts here.</h2><p className="mt-4 max-w-xl text-purple-100">Create, promote and sell tickets with tools built for Kenya’s busiest organisers.</p></div><Link to="/apply-organizer" className="mt-7 inline-flex rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-purple-800 transition hover:bg-amber-300 md:mt-0">Become an organiser</Link></div></section>
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6"><div className="flex items-end justify-between"><div><p className="text-sm font-bold uppercase tracking-[.15em] text-amber-600">Popular now</p><h2 className="mt-2 text-3xl font-black tracking-tight">Trending events</h2></div><Link to="/explore" className="hidden text-sm font-bold text-purple-700 sm:block">View more</Link></div><div className="mt-8 grid gap-6 md:grid-cols-3">{trendingEvents.map((event) => <EventCard key={event.id} event={event} />)}</div></section></main>
-    <footer className="bg-purple-950 py-12 text-white"><div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]"><div><p className="text-3xl font-black tracking-[-.08em]">OTIKO<span className="text-amber-400">.</span></p><p className="mt-3 max-w-xs text-sm leading-6 text-purple-200">Discover, book and experience the best events in Kenya.</p></div><div><p className="font-bold">Explore</p><div className="mt-3 grid gap-2 text-sm text-purple-200"><Link to="/explore">All events</Link><Link to="/about">About us</Link><Link to="/apply-organizer">For organisers</Link></div></div><div><p className="font-bold">Get in touch</p><div className="mt-3 grid gap-2 text-sm text-purple-200"><span className="inline-flex items-center gap-2"><Icon name="mail" className="h-4 w-4" />info@otiko.com</span><span className="inline-flex items-center gap-2"><Icon name="pin" className="h-4 w-4" />Nairobi, Kenya</span></div></div></div><p className="mx-auto mt-10 max-w-7xl border-t border-white/10 px-4 pt-6 text-xs text-purple-300 sm:px-6">© 2026 OTIKO.ke. All rights reserved.</p></footer>
-  </div>;
+  const [featuredEvents, setFeaturedEvents] = useState<Event[]>([]);
+  const [trendingEvents, setTrendingEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    const loadData = async () => {
+      try {
+        const [eventsData, categoriesData] = await Promise.all([
+          api.getEvents(),
+          api.getCategories(),
+        ]);
+
+        if (!active) return;
+
+        const publishedEvents = eventsData.filter((event) => event.status === 'PUBLISHED');
+        const sortedEvents = [...publishedEvents].sort(
+          (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+        );
+
+        setFeaturedEvents(sortedEvents.slice(0, 3));
+        setTrendingEvents(sortedEvents.slice(3, 6));
+        setCategories(categoriesData);
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : 'Unable to load events');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadData();
+    return () => { active = false; };
+  }, []);
+
+  const getCategoryImage = (name: string) => {
+    const images: Record<string, string> = {
+      Concerts: '/images/events/concert1.jpg',
+      Comedy: '/images/events/comedy1.jpg',
+      Sports: '/images/events/marathon1.jpg',
+      Parties: '/images/events/party1.jpg',
+      Theatre: '/images/events/fashion1.jpg',
+      Conferences: '/images/events/tech1.jpg',
+    };
+    return images[name] || '/images/events/concert1.jpg';
+  };
+
+  const getCategoryIcon = (name: string): 'music' | 'comedy' | 'sport' | 'party' | 'theatre' | 'laptop' | 'calendar' => {
+    const icons: Record<string, 'music' | 'comedy' | 'sport' | 'party' | 'theatre' | 'laptop'> = {
+      Concerts: 'music', Comedy: 'comedy', Sports: 'sport', Parties: 'party', Theatre: 'theatre', Conferences: 'laptop',
+    };
+    return icons[name] || 'calendar';
+  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
+          Failed to load data: {error}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link to="/" className="text-2xl font-bold text-blue-600">OTIKO</Link>
+            </div>
+            <div className="flex items-center gap-2 md:hidden">
+              <Link to="/explore" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700">Explore</Link>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/explore" className="text-gray-700 hover:text-blue-600 transition-colors">Explore</Link>
+              <Link to="/organizer-signup" className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Become an Organizer</Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <section className="home-hero relative isolate overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-900 text-white">
+        <div className="pointer-events-none absolute -left-24 -top-28 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl home-float" />
+        <div className="pointer-events-none absolute -bottom-40 right-0 h-[30rem] w-[30rem] rounded-full bg-purple-500/20 blur-3xl home-float home-float-delay" />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
+          <div className="home-reveal">
+            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-blue-100 backdrop-blur">
+              <Icon name="calendar" className="h-4 w-4" /> Find your next moment in Kenya
+            </p>
+            <h1 className="max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+              More moments.<br /><span className="text-blue-300">More you.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-blue-100/85 sm:text-xl">
+              Discover concerts, gatherings, and experiences that turn ordinary weekends into unforgettable stories.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link to="/explore" className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-slate-900 shadow-lg transition duration-300 hover:-translate-y-1 hover:bg-blue-50">
+                Explore events <Icon name="arrow" className="h-5 w-5" />
+              </Link>
+              <a href="#categories" className="rounded-xl border border-white/25 px-6 py-3 font-semibold text-white transition duration-300 hover:-translate-y-1 hover:bg-white/10">Browse categories</a>
+            </div>
+          </div>
+          <div className="home-reveal home-reveal-delay rounded-3xl border border-white/15 bg-white/10 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div><p className="text-sm font-semibold uppercase tracking-[.18em] text-blue-200">Make plans</p><h2 className="mt-2 text-2xl font-bold">Find an experience</h2></div>
+              <span className="rounded-2xl bg-white/10 p-3 text-blue-200"><Icon name="search" className="h-6 w-6" /></span>
+            </div>
+            <div className="space-y-3 rounded-2xl bg-white p-3 sm:p-4">
+              <label className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <Icon name="search" className="h-5 w-5 shrink-0 text-gray-400" />
+                <input type="search" placeholder="Search events" aria-label="Search events" className="min-w-0 flex-1 border-0 bg-transparent py-3 text-gray-900 outline-none focus:ring-0" />
+              </label>
+              <label className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <Icon name="pin" className="h-5 w-5 shrink-0 text-gray-400" />
+                <input type="text" placeholder="Choose a location" aria-label="Location" className="min-w-0 flex-1 border-0 bg-transparent py-3 text-gray-900 outline-none focus:ring-0" />
+              </label>
+              <Link to="/explore" className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white transition duration-300 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25">Search events <Icon name="arrow" className="h-5 w-5" /></Link>
+            </div>
+            <p className="mt-4 text-center text-sm text-blue-100/70">The Pulse of Events</p>
+          </div>
+        </div>
+      </section>
+      <div id="categories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {categories.map((category) => (
+            <Link key={category.id} to={'/explore?category=' + category.slug} className="home-card group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+              <div className="relative h-32">
+                <img src={getCategoryImage(category.name)} alt={category.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white">
+                  <span className="text-3xl mb-1"><Icon name={getCategoryIcon(category.name)} className="mb-2 h-8 w-8" /></span>
+                  <span className="font-semibold">{category.name}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Events</h2>
+        {featuredEvents.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg">
+            <Icon name="ticket" className="mx-auto mb-4 h-12 w-12 text-blue-500" />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No featured events yet</h3>
+            <p className="text-gray-600">Check back soon for exciting events!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredEvents.map((event) => (
+              <Link key={event.id} to={'/events/' + event.id} className="home-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                <div className="relative h-48 bg-gray-100">
+                  {event.posterUrl ? (
+                    <img src={event.posterUrl} alt={event.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center"><Icon name="ticket" className="h-12 w-12 text-blue-400" /></div>
+                  )}
+                  <span className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm">{event.category?.name}</span>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
+                  <p className="mt-2 flex items-center gap-2 text-gray-600"><Icon name="calendar" className="h-4 w-4" />{new Date(event.startDate).toLocaleDateString()}</p>
+                  <p className="flex items-center gap-2 text-gray-600"><Icon name="pin" className="h-4 w-4" />{event.location}</p>
+                  <div className="mt-4 flex justify-between items-center">
+                    <span className="text-blue-600 font-bold">From KSh {(event.ticketTypes.length ? Math.min(...event.ticketTypes.map(t => t.price)) : 0).toLocaleString()}</span>
+                    <span className="inline-flex items-center gap-1 text-blue-600">Details <Icon name="arrow" className="h-4 w-4" /></span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Trending Now</h2>
+        {trendingEvents.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg">
+            <Icon name="ticket" className="mx-auto mb-4 h-12 w-12 text-blue-500" />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No trending events</h3>
+            <p className="text-gray-600">Events will appear here as they gain popularity.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {trendingEvents.map((event) => (
+              <Link key={event.id} to={'/events/' + event.id} className="home-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                <div className="relative h-48 bg-gray-100">
+                  {event.posterUrl ? (
+                    <img src={event.posterUrl} alt={event.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center"><Icon name="ticket" className="h-12 w-12 text-blue-400" /></div>
+                  )}
+                  <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded bg-red-600 px-2 py-1 text-sm text-white"><Icon name="chart" className="h-4 w-4" />Trending</span>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
+                  <p className="mt-2 flex items-center gap-2 text-gray-600"><Icon name="calendar" className="h-4 w-4" />{new Date(event.startDate).toLocaleDateString()}</p>
+                  <p className="flex items-center gap-2 text-gray-600"><Icon name="pin" className="h-4 w-4" />{event.location}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <footer className="site-footer bg-gray-900 text-white py-12 mt-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-2xl font-bold mb-4">OTIKO</h3>
+              <p className="text-gray-400">The Pulse of Events</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link to="/login" className="inline-flex rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700">Login</Link></li>
+                <li><Link to="/explore" className="hover:text-white transition-colors">Explore Events</Link></li>
+                <li><Link to="/my-tickets" className="hover:text-white transition-colors">My Tickets</Link></li>
+                <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Categories</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link to="/explore?category=concerts" className="hover:text-white transition-colors">Concerts</Link></li>
+                <li><Link to="/explore?category=sports" className="hover:text-white transition-colors">Sports</Link></li>
+                <li><Link to="/explore?category=theatre" className="hover:text-white transition-colors">Theatre</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Contact</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li className="flex items-center gap-2"><Icon name="mail" className="h-4 w-4" />info@otiko.com</li>
+                <li className="flex items-center gap-2"><Icon name="phone" className="h-4 w-4" />+254 700 000 000</li>
+                <li className="flex items-center gap-2"><Icon name="pin" className="h-4 w-4" />Nairobi, Kenya</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
 }

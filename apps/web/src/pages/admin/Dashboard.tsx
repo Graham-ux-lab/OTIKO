@@ -17,7 +17,7 @@ import {
 } from 'recharts';
 import { AdminLayout } from '../../components/AdminLayout';
 import { getUsers, getAdminEvents, getOrganizers, getAdminOrders } from '../../api';
-import type { UserRow, AdminEventRow, OrganizerRow, OrderRow } from '../../types';
+import type { UserRow, AdminEventRow, OrganizerRow, AdminOrderRow } from '../../types';
 import { Icon } from '../../components/Icon';
 
 const PLATFORM_FEE = 0.1;
@@ -44,11 +44,11 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [events, setEvents] = useState<AdminEventRow[]>([]);
   const [organizers, setOrganizers] = useState<OrganizerRow[]>([]);
-  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [orders, setOrders] = useState<AdminOrderRow[]>([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([getUsers(), getAdminEvents(), getOrganizers(), getAdminOrders()])
+    const refresh = () => Promise.all([getUsers(), getAdminEvents(), getOrganizers(), getAdminOrders()])
       .then(([u, e, o, ord]) => {
         setUsers(u);
         setEvents(e);
@@ -56,12 +56,16 @@ export default function AdminDashboard() {
         setOrders(ord);
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'));
+    void refresh();
+    const timer = window.setInterval(refresh, 15000);
+    return () => window.clearInterval(timer);
   }, []);
 
   const paid = orders.filter((o) => o.status === 'PAID');
   const totalRevenue = paid.reduce((s, o) => s + o.totalAmount, 0);
   const fee = Math.round(totalRevenue * PLATFORM_FEE);
   const payout = totalRevenue - fee;
+  const ticketsSold = paid.reduce((sum, order) => sum + order.items.reduce((items, item) => items + item.quantity, 0), 0);
   const pendingOrganizers = organizers.filter((o) => o.status === 'PENDING').length;
 
   const revenueByDay: Record<string, number> = {};
@@ -90,6 +94,7 @@ export default function AdminDashboard() {
     { label: 'Total Organizers', value: organizers.length.toString(), icon: 'laptop' as const },
     { label: 'Total Events', value: events.length.toString(), icon: 'calendar' as const },
     { label: 'Revenue (paid)', value: `KSh ${totalRevenue.toLocaleString()}`, icon: 'chart' as const },
+    { label: 'Tickets Sold', value: ticketsSold.toLocaleString(), icon: 'ticket' as const },
     { label: 'Pending Approvals', value: pendingOrganizers.toString(), icon: 'tools' as const },
   ];
 
@@ -98,7 +103,7 @@ export default function AdminDashboard() {
       <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
       {error && <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
         {stats.map((s) => (
           <div key={s.label} className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">

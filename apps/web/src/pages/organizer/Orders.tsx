@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { OrganizerLayout } from '../../components/OrganizerLayout';
 import { getOrganizerOrders } from '../../api';
-import type { OrderRow } from '../../types';
+import type { OrganizerOrderRow } from '../../types';
 
 export default function OrganizerOrders() {
-  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [orders, setOrders] = useState<OrganizerOrderRow[]>([]);
   const [error, setError] = useState('');
   useEffect(() => {
-    getOrganizerOrders().then(setOrders).catch((e) => setError(e instanceof Error ? e.message : 'Failed'));
+    const refresh = () => getOrganizerOrders().then(setOrders).catch((e) => setError(e instanceof Error ? e.message : 'Failed'));
+    void refresh();
+    const timer = window.setInterval(refresh, 15000);
+    return () => window.clearInterval(timer);
   }, []);
   const total = orders.filter((o) => o.status === 'PAID').reduce((s, o) => s + o.totalAmount, 0);
   return (
