@@ -42,7 +42,7 @@ export interface CheckoutOrder {
 
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   if (!import.meta.env.VITE_API_URL) {
-    throw new Error('The API URL is not configured. Set VITE_API_URL in the Vercel project environment variables and redeploy.');
+    throw new Error('The API URL is not configured. Set VITE_API_URL in your hosting provider build environment and redeploy.');
   }
   const token = localStorage.getItem('otiko_access_token');
   const headers: Record<string, string> = {

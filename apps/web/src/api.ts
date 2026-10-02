@@ -15,7 +15,7 @@ function authHeaders(): Record<string, string> {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!import.meta.env.VITE_API_URL) {
-    throw new Error('The API URL is not configured. Set VITE_API_URL in the Vercel project environment variables and redeploy.');
+    throw new Error('The API URL is not configured. Set VITE_API_URL in your hosting provider build environment and redeploy.');
   }
   const response = await fetch(`${apiBaseUrl}${path}`, {
     headers: { 'Content-Type': 'application/json', ...authHeaders(), ...init?.headers },
