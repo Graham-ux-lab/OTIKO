@@ -1,6 +1,6 @@
 import type { ApiCategory, ApiTicketType, AdminEventRow, AdminOrderRow, OrganizerRow, UserRow } from '../types';
 
-const API_BASE = `${import.meta.env.VITE_API_URL ?? 'http://localhost:4000'}/api`;
+const API_BASE = `${(import.meta.env.VITE_API_URL || '').replace(/\/$/, '')}/api`;
 
 export interface AuthResponse {
   accessToken: string;
@@ -41,6 +41,9 @@ export interface CheckoutOrder {
 }
 
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  if (!import.meta.env.VITE_API_URL) {
+    throw new Error('The API URL is not configured. Set VITE_API_URL in the Vercel project environment variables and redeploy.');
+  }
   const token = localStorage.getItem('otiko_access_token');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
