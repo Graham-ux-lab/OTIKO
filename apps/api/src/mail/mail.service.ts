@@ -1,41 +1,67 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
   private resend: Resend | null = null;
+  private smtp: nodemailer.Transporter | null = null;
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;
-    if (apiKey) {
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+
+    if (smtpHost && smtpUser && smtpPass) {
+      this.smtp = nodemailer.createTransport({
+        host: smtpHost,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: Number(process.env.SMTP_PORT) === 465,
+        auth: { user: smtpUser, pass: smtpPass },
+      });
+      this.logger.log('SMTP email client ready');
+    } else if (apiKey) {
       this.resend = new Resend(apiKey);
       this.logger.log('✅ Resend email client ready');
     } else {
-      this.logger.warn('⚠️  RESEND_API_KEY not set — emails will be skipped');
+      this.logger.warn('Email is not configured. Set Gmail SMTP credentials or RESEND_API_KEY.');
     }
   }
 
-  async sendMail(options: { to: string; subject: string; html: string }): Promise<void> {
-    if (!this.resend) {
-      this.logger.warn('⚠️  Email skipped (no Resend client)');
-      return;
+  async sendMail(options: { to: string; subject: string; html: string }): Promise<boolean> {
+    if (!this.smtp && !this.resend) {
+      this.logger.error('Email not sent: configure Gmail SMTP or RESEND_API_KEY');
+      return false;
     }
 
     try {
-      const from = process.env.EMAIL_FROM || 'OTIKO <onboarding@resend.dev>';
-      await this.resend.emails.send({
-        from,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-      });
-      this.logger.log('✅ Email sent to ' + options.to);
-    } catch (error: any) {
-      this.logger.error('❌ Failed to send email to ' + options.to + ': ' + error.message);
+      if (this.smtp) {
+        const info = await this.smtp.sendMail({
+          from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        });
+        if (!info.messageId) throw new Error('SMTP server did not return a message id');
+      } else if (this.resend) {
+        const { data, error } = await this.resend.emails.send({
+          from: process.env.EMAIL_FROM || 'OTIKO <onboarding@resend.dev>',
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        });
+        if (error) throw new Error(error.message);
+        if (!data?.id) throw new Error('Email provider did not return a message id');
+      }
+      this.logger.log('Email accepted by provider for ' + options.to);
+      return true;
+    } catch (error: unknown) {
+      this.logger.error('Failed to send email to ' + options.to + ': ' + (error instanceof Error ? error.message : String(error)));
+      return false;
     }
   }
-
   async sendOrganizerVerification(email: string, name: string, token: string) {
     const verifyUrl = (process.env.FRONTEND_URL || 'http://localhost:5173') + '/verify-email/' + token;
 
@@ -59,7 +85,7 @@ export class MailService {
     await this.sendMail({ to: email, subject: 'Verify your OTIKO organizer account', html });
   }
 
-  async sendOrganizerApproved(email: string, name: string, organizationName: string) {
+  async sendOrganizerApproved(email: string, name: string, organizationName: string): Promise<boolean> {
     const dashboardUrl = (process.env.FRONTEND_URL || 'http://localhost:5173') + '/login';
 
     const html = '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb;">' +
@@ -75,7 +101,7 @@ export class MailService {
       '</div>' +
       '</div></div>';
 
-    await this.sendMail({ to: email, subject: '🎉 Your OTIKO organizer account has been approved', html });
+    return this.sendMail({ to: email, subject: 'Your OTIKO organizer account has been approved', html });
   }
 
   async sendOrganizerRejected(email: string, name: string, reason: string) {

@@ -100,17 +100,9 @@ export class AdminService {
       include: { organizerProfile: true },
     });
 
-    if (!user || user.role !== 'ORGANIZER') {
-      throw new NotFoundException('Organizer not found');
-    }
-
-    if (!user.organizerProfile) {
-      throw new BadRequestException('Organizer has no profile');
-    }
-
-    if (user.organizerProfile.status === 'VERIFIED') {
-      throw new BadRequestException('Organizer is already verified');
-    }
+    if (!user || user.role !== 'ORGANIZER') throw new NotFoundException('Organizer not found');
+    if (!user.organizerProfile) throw new BadRequestException('Organizer has no profile');
+    if (user.organizerProfile.status === 'VERIFIED') throw new BadRequestException('Organizer is already verified');
 
     const emailSent = await this.mailService.sendOrganizerApproved(
       user.email,
@@ -118,20 +110,14 @@ export class AdminService {
       user.organizerProfile.organizationName,
     );
     if (!emailSent) {
-      throw new BadRequestException(`Could not send the approval email to ${user.email}. Check the SMTP settings and try again.`);
+      throw new BadRequestException(`Could not send the approval email to ${user.email}. Check the configured email provider settings, then try again.`);
     }
 
-    // Update organizer profile
     await this.prisma.organizerProfile.update({
       where: { id: user.organizerProfile.id },
-      data: {
-        status: 'VERIFIED',
-        approvedAt: new Date(),
-        rejectedReason: null,
-      },
+      data: { status: 'VERIFIED', approvedAt: new Date(), rejectedReason: null },
     });
 
-    // Log the action
     await this.prisma.auditLog.create({
       data: {
         action: 'ORGANIZER_APPROVED',
@@ -142,14 +128,12 @@ export class AdminService {
       },
     });
 
-    this.logger.log(`✅ Organizer approved: ${user.email}`);
-
+    this.logger.log(`Organizer approved: ${user.email}`);
     return {
       message: `Organizer approved. An approval email was sent to ${user.email}.`,
       emailSent: true,
     };
   }
-
   async rejectOrganizer(id: string, adminId: string, reason: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -185,7 +169,7 @@ export class AdminService {
 
     await this.mailService.sendOrganizerRejected(user.email, user.name, reason);
 
-    this.logger.log(`❌ Organizer rejected: ${user.email}`);
+    this.logger.log(`ÃƒÂ¢Ã‚ÂÃ…â€™ Organizer rejected: ${user.email}`);
 
     return {
       message: 'Organizer rejected. Notification email sent.',

@@ -196,13 +196,12 @@ export class AuthService {
     });
 
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${encodeURIComponent(resetToken)}`;
-    const emailSent = await this.mailService.sendMail({
+    await this.mailService.sendMail({
       to: user.email,
       subject: 'Reset your OTIKO password',
       html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px"><h1>Reset your OTIKO password</h1><p>Use the link below to choose a new password. If you did not request this, ignore this email.</p><p><a href="${resetUrl}">Reset password</a></p><p style="word-break:break-all">${resetUrl}</p></div>`,
     });
 
-    if (!emailSent) this.logger.warn(`Password reset email could not be sent to ${user.email}`);
 
     return { message: 'If the email exists, a reset link has been sent.' };
   }
